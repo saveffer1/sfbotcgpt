@@ -4,7 +4,6 @@ from discord.ext import commands
 from src import responses
 from src import log
 from ast import alias
-from youtube_dl import YoutubeDL
 
 logger = log.setup_logger(__name__)
 
