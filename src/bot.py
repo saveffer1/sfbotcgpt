@@ -1,14 +1,10 @@
-from music import music_cog
 import discord
 from discord import app_commands
+from discord.ext import commands
 from src import responses
 from src import log
-
-from discord.ext import commands
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
+from ast import alias
+from youtube_dl import YoutubeDL
 
 logger = log.setup_logger(__name__)
 
@@ -16,14 +12,12 @@ config = responses.get_config()
 
 isPrivate = False
 
-
 class aclient(discord.Client):
     def __init__(self) -> None:
         super().__init__(intents=discord.Intents.default())
         self.tree = app_commands.CommandTree(self)
         self.activity = discord.Activity(type=discord.ActivityType.watching, name="/chat | /help")
-
-
+        
 async def send_message(message, user_message):
     await message.response.defer(ephemeral=isPrivate)
     try:
@@ -156,8 +150,16 @@ def run_discord_bot():
     async def say(interaction: discord.Interaction, message: str):
         await interaction.response.defer(ephemeral=False)
         await interaction.followup.send(message)
-    
-    client.add_cog(music_cog(client))
+        logger.info("\x1b[31mSomeone use say cmd!\x1b[0m")
+        
+    #play music command
+    @client.tree.command(name="play", description="เล่นเพลง")
+    #write the join voice channel and play music code here
+    #send the link to the music
+    async def play(interaction: discord.Interaction, url: str):
+        await interaction.response.defer(ephemeral=False)
+        await interaction.followup.send("ทำยากจังขี้เกียจทำต่อละ: https://youtu.be/dQw4w9WgXcQ")
+        logger.info("\x1b[31mSomeone use play cmd!\x1b[0m")
 
     TOKEN = config['discord_bot_token']
     client.run(TOKEN)
