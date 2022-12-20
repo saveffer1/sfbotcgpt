@@ -1,7 +1,14 @@
+from music import music_cog
 import discord
 from discord import app_commands
 from src import responses
 from src import log
+
+from discord.ext import commands
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 logger = log.setup_logger(__name__)
 
@@ -136,31 +143,21 @@ def run_discord_bot():
     async def help(interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=False)
         await interaction.followup.send(":star:**ชุดคำสั่ง** \n    `/chat [message]` คุยกับ ChatGPT!\n  `/private` เข้าสู่โหมดส่งข้อความส่วนตัว\n  `/public` เข้าสู่โหมดส่งข้อความสาธารณะ \n    visit saveffer1: https://github.com/saveffer1")
-        logger.info(
-            "\x1b[31mSomeone need help!\x1b[0m")
+        logger.info("\x1b[31mSomeone need help!\x1b[0m")
     
     @client.tree.command(name="invite", description="เชิญบอทเข้าเซิฟเวอร์")
     async def invite(interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=False)
         await interaction.followup.send("https://discord.com/api/oauth2/authorize?client_id=1054600054498926613&permissions=59392&scope=bot")
-        logger.info(
-            "\x1b[31mSomeone need help!\x1b[0m")
+        logger.info("\x1b[31mSomeone use invite cmd!\x1b[0m")
     
     #say command
-    @client.tree.command(name="say", description="ส่งข้อความในช่องแชท")
+    @client.tree.command(name="say", description="บอทจะพูดตามที่คุณพิมพ์")
     async def say(interaction: discord.Interaction, message: str):
         await interaction.response.defer(ephemeral=False)
         await interaction.followup.send(message)
-        logger.info(
-            "\x1b[31mSomeone need help!\x1b[0m")
     
-    #play music from name
-    @client.tree.command(name="debugsm", description="หาเพลง")
-    async def play(interaction: discord.Interaction, name: str):
-        await interaction.response.defer(ephemeral=False)
-        await interaction.followup.send("https://www.youtube.com/results?search_query=" + name)
-        logger.info(
-            "\x1b[31mSomeone need help!\x1b[0m")
+    client.add_cog(music_cog(client))
 
     TOKEN = config['discord_bot_token']
     client.run(TOKEN)
