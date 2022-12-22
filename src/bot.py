@@ -161,8 +161,8 @@ async def create_multcollage(ctx: discord.Interaction, query: str, source_image:
         img_draw.text((2, 0), query, font=fnt, fill=(0, 0, 0))
         img_draw.text((2, 2), query, font=fnt, fill=(0, 0, 0))
         img_draw.text((1, 1), query, font=fnt, fill=(255, 255, 255))
-        new_im.save(f"./generated/{ctx.author.id}/art.png")
-        return f"./generated/{ctx.author.id}/art.png"
+        new_im.save(f"./generated/{ctx.user.id}/art.png")
+        return f"./generated/{ctx.user.id}/art.png"
 
 def run_discord_bot():
     client = aclient()
