@@ -24,7 +24,7 @@ class aclient(discord.Client):
     def __init__(self) -> None:
         super().__init__(intents=discord.Intents.default())
         self.tree = app_commands.CommandTree(self)
-        self.activity = discord.Activity(type=discord.ActivityType.watching, name="/chat | /help")
+        self.activity = discord.Activity(type=discord.ActivityType.watching, name="/chat | /draw | /help")
         
 async def send_message(message, user_message):
     await message.response.defer(ephemeral=isPrivate)
@@ -131,7 +131,39 @@ async def create_collage(ctx: discord.Interaction, query: str, source_image: Ima
             new_im.close()
             im.close()
         return f"./generated/{ctx.user.id}/art.png"
-    
+
+async def create_multcollage(ctx: discord.Interaction, query: str, source_image: Image, images: list) -> str:
+        width = source_image.width
+        height = source_image.height
+        font_size = 30
+        spacing = 16
+        text_height = font_size + spacing
+        new_im = Image.new('RGBA', (width * 3 + spacing * 2, height * 3 + spacing * 2 + text_height),
+                            (0, 0, 0, 0))
+
+        index = 0
+        for i in range(0, 3):
+            for j in range(0, 3):
+                im = Image.open(images[index].path)
+                im.thumbnail((width, height))
+                new_im.paste(im, (i * (width + spacing),
+                             text_height + j * (height + spacing)))
+                index += 1
+
+        img_draw = ImageDraw.Draw(new_im)
+        fnt = ImageFont.truetype("./FiraMono-Medium.ttf", font_size)
+        img_draw.text((1, 0), query, font=fnt, fill=(0, 0, 0))
+        img_draw.text((0, 1), query, font=fnt, fill=(0, 0, 0))
+        img_draw.text((1, 2), query, font=fnt, fill=(0, 0, 0))
+        img_draw.text((2, 1), query, font=fnt, fill=(0, 0, 0))
+        img_draw.text((0, 0), query, font=fnt, fill=(0, 0, 0))
+        img_draw.text((0, 2), query, font=fnt, fill=(0, 0, 0))
+        img_draw.text((2, 0), query, font=fnt, fill=(0, 0, 0))
+        img_draw.text((2, 2), query, font=fnt, fill=(0, 0, 0))
+        img_draw.text((1, 1), query, font=fnt, fill=(255, 255, 255))
+        new_im.save(f"./generated/{ctx.author.id}/art.png")
+        return f"./generated/{ctx.author.id}/art.png"
+
 def run_discord_bot():
     client = aclient()
 
@@ -170,7 +202,7 @@ def run_discord_bot():
         await interaction.response.defer(ephemeral=False)
         if isPrivate:
             isPrivate = not isPrivate
-            await interaction.followup.send("> **Info: ต่อไปจะตอบกลับข้อความภายในช่องแชต. หากจะส่งข้อความส่วนตัวให้ใช้, `/private`**")
+            await interaction.followup.send("> **Info: Next, ต่อไปจะตอบกลับข้อความภายในช่องแชต. หากจะส่งข้อความส่วนตัวให้ใช้, `/private`**")
             logger.warning("\x1b[31mSwitch to public mode\x1b[0m")
         else:
             await interaction.followup.send("> **Warn: คุณอยู่ในโหมดส่งข้อความสาธารณะ. ถ้าจะกลับไปโหมดส่วนตัวให้ใช้, `/private`**")
@@ -179,7 +211,7 @@ def run_discord_bot():
     @client.tree.command(name="help", description="แสดงคำสั่งเกี่ยวกับ saveffer bot")
     async def help(interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=False)
-        await interaction.followup.send(":star:**ชุดคำสั่ง** \n   `/draw [query]` วาดรูป ฟีเจอร์ใหม่\n `/chat [message]` คุยกับ ChatGPT!\n  `/private` เข้าสู่โหมดส่งข้อความส่วนตัว\n  `/public` เข้าสู่โหมดส่งข้อความสาธารณะ \n    visit saveffer1: https://github.com/saveffer1")
+        await interaction.followup.send(":star:**ชุดคำสั่ง** \n    `/chat [message]` คุยกับ ChatGPT!\n  `/private` เข้าสู่โหมดส่งข้อความส่วนตัว\n  `/public` เข้าสู่โหมดส่งข้อความสาธารณะ \n    visit saveffer1: https://github.com/saveffer1")
         logger.info("\x1b[31mSomeone need help!\x1b[0m")
     
     @client.tree.command(name="invite", description="เชิญบอทเข้าเซิฟเวอร์")
@@ -197,8 +229,8 @@ def run_discord_bot():
             return
 
         # Check if query is too long
-        if len(query) > 50:
-            await ctx.followup.send("sfbot: เกิดข้อผิดพลาด\nสิ่งที่ขอมันยาวเกินไป! (สูงสุด: 50 ตัวอักษร)")
+        if len(query) > 100:
+            await ctx.followup.send("sfbot: เกิดข้อผิดพลาด\nสิ่งที่ขอมันยาวเกินไป! (สูงสุด: 100 ตัวอักษร)")
             return
 
         print(f"[-] {ctx.user.name} asked to draw {query}")
@@ -212,6 +244,56 @@ def run_discord_bot():
             if len(generated) > 0:
                 first_image = Image.open(generated[0].path)
                 generated_collage = await create_collage(ctx, query, first_image, generated)
+
+                # Prepare the attachment
+                file = discord.File(generated_collage, filename="art.png")
+                await ctx.followup.send(file=file)
+
+                # Delete the message
+                await message.delete()
+
+        except Dalle.DallENoImagesReturned:
+            await ctx.followup.send("sfbot ไม่รู้จัก {query}.")
+        except Dalle.DallENotJson:
+            await ctx.followup.send("API Serialization Error, โปรดลองอีกครั้ง.")
+        except Dalle.DallEParsingFailed:
+            await ctx.followup.send("Parsing Error, โปรดลองอีกครั้ง.")
+        except Dalle.DallESiteUnavailable:
+            await ctx.followup.send("API Error, โปรดลองอีกครั้ง.")
+        except Exception as e:
+            if e == UnicodeEncodeError:
+                await ctx.followup.send("ระบบวาดตอนนี้ไม่เข้าใจภาษาอื่น, ขอร้องอย่าพยายามไอ้พวกเหี้ย.")
+            else:
+                await ctx.followup.send("เซิร์ฟล่มไปแล้ว, โปรดลองอีกครั้ง.")
+                await ctx.followup.send(repr(e))
+        finally:
+            # Delete the author folder in ./generated with author id, if exists
+            del_dir(f"./generated/{ctx.user.id}")
+    
+    @client.tree.command(name="multidraw", description="วาดหลายรูปพร้อมกัน")
+    async def draw(ctx: discord.Interaction, *, query: str) -> None:
+        await ctx.response.defer(ephemeral=False)
+        # Check if query is empty
+        if not query:
+            await ctx.followup.send("sfbot: เกิดข้อผิดพลาด\nโปรดใส่สิ่งที่ต้องการให้วาดลงไปด้วย.")
+            return
+
+        # Check if query is too long
+        if len(query) > 100:
+            await ctx.followup.send("sfbot: เกิดข้อผิดพลาด\nสิ่งที่ขอมันยาวเกินไป! (สูงสุด: 100 ตัวอักษร)")
+            return
+
+        print(f"[-] {ctx.user.name} asked to draw {query}")
+
+        message = await ctx.followup.send(f"กำลังทำคำขอให้ {ctx.user.name} (นี่อาจจะใช้เวลามากกว่า 2 นาที)"" ```" + query + "```")
+
+        try:
+            dall_e = await Dalle.DallE(prompt=f"{query}", author=f"{ctx.user.id}")
+            generated = await dall_e.generate()
+
+            if len(generated) > 0:
+                first_image = Image.open(generated[0].path)
+                generated_collage = await create_multcollage(ctx, query, first_image, generated)
 
                 # Prepare the attachment
                 file = discord.File(generated_collage, filename="art.png")
