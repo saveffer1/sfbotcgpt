@@ -170,7 +170,7 @@ def run_discord_bot():
         await interaction.response.defer(ephemeral=False)
         if isPrivate:
             isPrivate = not isPrivate
-            await interaction.followup.send("> **Info: Next, ต่อไปจะตอบกลับข้อความภายในช่องแชต. หากจะส่งข้อความส่วนตัวให้ใช้, `/private`**")
+            await interaction.followup.send("> **Info: ต่อไปจะตอบกลับข้อความภายในช่องแชต. หากจะส่งข้อความส่วนตัวให้ใช้, `/private`**")
             logger.warning("\x1b[31mSwitch to public mode\x1b[0m")
         else:
             await interaction.followup.send("> **Warn: คุณอยู่ในโหมดส่งข้อความสาธารณะ. ถ้าจะกลับไปโหมดส่วนตัวให้ใช้, `/private`**")
@@ -179,7 +179,7 @@ def run_discord_bot():
     @client.tree.command(name="help", description="แสดงคำสั่งเกี่ยวกับ saveffer bot")
     async def help(interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=False)
-        await interaction.followup.send(":star:**ชุดคำสั่ง** \n    `/chat [message]` คุยกับ ChatGPT!\n  `/private` เข้าสู่โหมดส่งข้อความส่วนตัว\n  `/public` เข้าสู่โหมดส่งข้อความสาธารณะ \n    visit saveffer1: https://github.com/saveffer1")
+        await interaction.followup.send(":star:**ชุดคำสั่ง** \n   `/draw [query]` วาดรูป ฟีเจอร์ใหม่\n `/chat [message]` คุยกับ ChatGPT!\n  `/private` เข้าสู่โหมดส่งข้อความส่วนตัว\n  `/public` เข้าสู่โหมดส่งข้อความสาธารณะ \n    visit saveffer1: https://github.com/saveffer1")
         logger.info("\x1b[31mSomeone need help!\x1b[0m")
     
     @client.tree.command(name="invite", description="เชิญบอทเข้าเซิฟเวอร์")
