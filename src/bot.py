@@ -151,7 +151,7 @@ async def create_multcollage(ctx: discord.Interaction, query: str, source_image:
                 index += 1
 
         img_draw = ImageDraw.Draw(new_im)
-        fnt = ImageFont.truetype("./FiraMono-Medium.ttf", font_size)
+        fnt = ImageFont.load_default()
         img_draw.text((1, 0), query, font=fnt, fill=(0, 0, 0))
         img_draw.text((0, 1), query, font=fnt, fill=(0, 0, 0))
         img_draw.text((1, 2), query, font=fnt, fill=(0, 0, 0))
