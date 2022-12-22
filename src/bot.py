@@ -5,6 +5,15 @@ from src import responses
 from src import log
 from ast import alias
 
+from src.Classes import Dalle
+
+# Builtin
+import asyncio
+import os
+from PIL import Image, ImageDraw, ImageFont
+from pathlib import Path
+from typing import Union
+
 logger = log.setup_logger(__name__)
 
 config = responses.get_config()
@@ -87,7 +96,42 @@ async def send_start_prompt(client):
     except Exception as e:
         logger.exception(f"Error while sending starting prompt: {e}")
 
+def del_dir(target: Union[Path, str], only_if_empty: bool = False):
+    target = Path(target).expanduser()
+    if not target.is_dir():
+        raise RuntimeError(f"{target} is not a directory")
 
+    for p in sorted(target.glob('**/*'), reverse=True):
+        if not p.exists():
+            continue
+        p.chmod(0o666)
+        if p.is_dir():
+            p.rmdir()
+        else:
+            if only_if_empty:
+                raise RuntimeError(f'{p.parent} is not empty!')
+            p.unlink()
+    target.rmdir()
+
+async def create_collage(ctx: discord.Interaction, query: str, source_image: Image, images: list) -> str:
+        width = source_image.width
+        height = source_image.height
+        font_size = 30
+        spacing = 16
+        text_height = font_size + spacing
+        
+        im = Image.open(images[0].path)
+        im.thumbnail((width, height))
+        with Image.new('RGB', (width, height + text_height), (255, 255, 255)) as new_im:
+            new_im.paste(im, (0, text_height))
+            img_draw = ImageDraw.Draw(new_im)
+            fnt = ImageFont.load_default()
+            img_draw.text((1, 0), query, font=fnt, fill=(0, 0, 0))
+            new_im.save(f"./generated/{ctx.user.id}/art.png")
+            new_im.close()
+            im.close()
+        return f"./generated/{ctx.user.id}/art.png"
+    
 def run_discord_bot():
     client = aclient()
 
@@ -144,21 +188,55 @@ def run_discord_bot():
         await interaction.followup.send("https://discord.com/api/oauth2/authorize?client_id=1054600054498926613&permissions=59392&scope=bot")
         logger.info("\x1b[31mSomeone use invite cmd!\x1b[0m")
     
-    #say command
-    @client.tree.command(name="say", description="บอทจะพูดตามที่คุณพิมพ์")
-    async def say(interaction: discord.Interaction, message: str):
-        await interaction.response.defer(ephemeral=False)
-        await interaction.followup.send(message)
-        logger.info("\x1b[31mSomeone use say cmd!\x1b[0m")
-        
-    #play music command
-    @client.tree.command(name="play", description="เล่นเพลง")
-    #write the join voice channel and play music code here
-    #send the link to the music
-    async def play(interaction: discord.Interaction, url: str):
-        await interaction.response.defer(ephemeral=False)
-        await interaction.followup.send("ทำยากจังขี้เกียจทำต่อละ: https://youtu.be/dQw4w9WgXcQ")
-        logger.info("\x1b[31mSomeone use play cmd!\x1b[0m")
+    @client.tree.command(name="draw", description="สร้างรูปจากสิ่งที่พิมพ์")
+    async def draw(ctx: discord.Interaction, *, query: str) -> None:
+        await ctx.response.defer(ephemeral=False)
+        # Check if query is empty
+        if not query:
+            await ctx.followup.send("sfbot: เกิดข้อผิดพลาด\nโปรดใส่สิ่งที่ต้องการให้วาดลงไปด้วย.")
+            return
+
+        # Check if query is too long
+        if len(query) > 50:
+            await ctx.followup.send("sfbot: เกิดข้อผิดพลาด\nสิ่งที่ขอมันยาวเกินไป! (สูงสุด: 50 ตัวอักษร)")
+            return
+
+        print(f"[-] {ctx.user.name} asked to draw {query}")
+
+        message = await ctx.followup.send(f"กำลังทำคำขอให้ {ctx.user.name} (นี่อาจจะใช้เวลามากกว่า 2 นาที)"" ```" + query + "```")
+
+        try:
+            dall_e = await Dalle.DallE(prompt=f"{query}", author=f"{ctx.user.id}")
+            generated = await dall_e.generate()
+
+            if len(generated) > 0:
+                first_image = Image.open(generated[0].path)
+                generated_collage = await create_collage(ctx, query, first_image, generated)
+
+                # Prepare the attachment
+                file = discord.File(generated_collage, filename="art.png")
+                await ctx.followup.send(file=file)
+
+                # Delete the message
+                await message.delete()
+
+        except Dalle.DallENoImagesReturned:
+            await ctx.followup.send("sfbot ไม่รู้จัก {query}.")
+        except Dalle.DallENotJson:
+            await ctx.followup.send("API Serialization Error, โปรดลองอีกครั้ง.")
+        except Dalle.DallEParsingFailed:
+            await ctx.followup.send("Parsing Error, โปรดลองอีกครั้ง.")
+        except Dalle.DallESiteUnavailable:
+            await ctx.followup.send("API Error, โปรดลองอีกครั้ง.")
+        except Exception as e:
+            if e == UnicodeEncodeError:
+                await ctx.followup.send("ระบบวาดตอนนี้ไม่เข้าใจภาษาอื่น, ขอร้องอย่าพยายามไอ้พวกเหี้ย.")
+            else:
+                await ctx.followup.send("เซิร์ฟล่มไปแล้ว, โปรดลองอีกครั้ง.")
+                await ctx.followup.send(repr(e))
+        finally:
+            # Delete the author folder in ./generated with author id, if exists
+            del_dir(f"./generated/{ctx.user.id}")
 
     TOKEN = config['discord_bot_token']
     client.run(TOKEN)
