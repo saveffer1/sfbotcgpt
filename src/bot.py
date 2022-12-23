@@ -219,12 +219,8 @@ def run_discord_bot():
     @client.tree.command(name="draw", description="สร้างรูปจากสิ่งที่พิมพ์")
     @app_commands.describe(number="จำนวนของรูป สูงสุด 9")
     async def draw(ctx: discord.Interaction, *, prompt: str, number: app_commands.Range[int, 1, 9] = 1) -> None:
-        guild = ctx.guild_id
-        if guild in guildler:
-            ep = False
-        else:
-            ep = True
-        await ctx.response.defer(ephemeral=ep)
+        
+        await ctx.response.defer(ephemeral=isPrivate)
         
         # Check if prompt is empty
         if not prompt:
@@ -251,10 +247,7 @@ def run_discord_bot():
                 # Prepare the attachment
                 f = discord.File(generated_collage, filename="art.png")
                 b = discord.Embed(title='follow me on github', description=prompt, url=URL)
-                await ctx.followup.send(embed=b, file=f, ephemeral=ep)
-                
-                #await ctx.followup.send(file=f, embed=b)
-
+                await ctx.followup.send(file=f, embed=b)
                 # Delete the message
                 await message.delete()
 
@@ -286,13 +279,9 @@ def run_discord_bot():
     async def newdraw(interaction: discord.Interaction, prompt: str, number: app_commands.Range[int, 1, 4] = 1, sizes: app_commands.Choice[str] = "1024x1024"):
         if sizes != "1024x1024":
             sizes = sizes.value
-        guild = interaction.guild_id
-        if guild in guildler:
-            ep = False
-        else:
-            ep = True
+
         print(f"[-] {interaction.user.name} asked to newdraw {prompt}")
-        await interaction.response.defer(ephemeral=ep)
+        await interaction.response.defer(ephemeral=isPrivate)
         try:
             response = openai.Image.create(
                 prompt=prompt,
@@ -307,36 +296,11 @@ def run_discord_bot():
                     url=response['data'][index]["url"])
                 b.append(globals()['embed%s' % index])
     
-            await interaction.followup.send(embeds=b, ephemeral=ep)
+            await interaction.followup.send(embeds=b)
         except openai.error.InvalidRequestError as e:
             await interaction.followup.send("หื้มมม เนื้อหาอนาจารนะเนี่ย ลองใหม่อีกทีนะ ai ตัวนี้ไม่อณุญาติบางคำค้นหา")
         except Exception as e:
             await interaction.followup.send(f"เซิร์ฟล่มไปแล้ว, โปรดลองอีกครั้ง. {repr(e)}")
-    
-    def is_owner(interaction: discord.Interaction):
-        if interaction.user.id == interaction.guild.owner_id:
-            return True
-        return False
-
-    @client.tree.command(name="set", description="สำหรับเจ้าของห้อง ตั้งค่าข้อความของบอท(เฉพาะรูป)")
-    @app_commands.check(is_owner)
-    async def nolink(interaction, ephemeral: bool):
-        await interaction.response.defer(ephemeral=False)
-        guild = interaction.guild.id
-        if ephemeral == True:
-            if guild in guildler:
-                await interaction.followup.send("ทำให้ผู้ใช้เห็นแค่คนเดียว = True")
-                guildler.remove(guild)
-            elif guild not in guildler:
-                await interaction.followup.send("ไม่มีอะไรเกิดขึ้น")
-        else:
-            if guild in guildler:
-                await interaction.followup.send("ไม่มีอะไรเกิดขึ้น")
-            elif guild not in guildler:
-                await interaction.followup.send("ทำให้ผู้ใช้เห็นแค่คนเดียว = False")
-                guildler.append(guild)
-    
-    
     
     TOKEN = config['discord_bot_token']
     client.run(TOKEN)
