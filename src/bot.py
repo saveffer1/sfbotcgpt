@@ -207,7 +207,7 @@ def run_discord_bot():
     @client.tree.command(name="help", description="แสดงคำสั่งเกี่ยวกับ saveffer bot")
     async def help(interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=False)
-        await interaction.followup.send(":star:**ชุดคำสั่ง** \n    `/chat [message]` คุยกับ ChatGPT!\n  `/private` เข้าสู่โหมดส่งข้อความส่วนตัว\n  `/public` เข้าสู่โหมดส่งข้อความสาธารณะ \n    visit saveffer1: https://github.com/saveffer1")
+        await interaction.followup.send(":star:**ชุดคำสั่ง** \n  `/chat [message]` คุยกับ ChatGPT!\n  `/private` เข้าสู่โหมดส่งข้อความส่วนตัว\n  `/public` เข้าสู่โหมดส่งข้อความสาธารณะ \n    `/draw [prompt]` วาดรูป \n  `/newdraw [prompt]` วาดรูป2 \nvisit saveffer1: https://github.com/saveffer1")
         logger.info("\x1b[31mSomeone need help!\x1b[0m")
     
     @client.tree.command(name="invite", description="เชิญบอทเข้าเซิฟเวอร์")
@@ -321,7 +321,7 @@ def run_discord_bot():
     @client.tree.command(name="set", description="สำหรับเจ้าของห้อง ตั้งค่าข้อความของบอท(เฉพาะรูป)")
     @app_commands.check(is_owner)
     async def nolink(interaction, ephemeral: bool):
-        await interaction.response.defer(ephemeral=True)
+        await interaction.response.defer(ephemeral=False)
         guild = interaction.guild.id
         if ephemeral == True:
             if guild in guildler:
