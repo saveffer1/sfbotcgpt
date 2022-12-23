@@ -19,7 +19,7 @@ sfbotcgpt is the one of my discord bot that combine many projects from github in
 
 sfbotcgpt requires server to run this bot
 
-Install all dependencies and start the script.
+Install all dependencies and start the script.                                             
 Th version
 ```sh
 tested python version == 3.11
