@@ -41,7 +41,7 @@ tested python version == 3.11
 จบปิ๊ง
 ```
 
-En google version
+En google translate version
 ```sh
 tested python version == 3.11
 1. Install python library
