@@ -41,7 +41,7 @@ tested python version == 3.11
 จบปิ๊ง
 ```
 
-En version
+En google version
 ```sh
 tested python version == 3.11
 1. Install python library
@@ -59,6 +59,7 @@ tested python version == 3.11
 10. In web bot discord, go to oauth2 -> url generator, tick bot, tick admin and copy the invitation code below to open. This will invite the bot to the disk.
 11. In the web bot discord, go back to the bot menu at Privileged Gateway Intents, there are 3 open. Open them all.
 12.run python code, the filename is main.py
+end.
 ```
 
 ## Cloned feature bot credit
