@@ -13,12 +13,16 @@ import os
 from PIL import Image, ImageDraw, ImageFont
 from pathlib import Path
 from typing import Union
+import openai
 
 logger = log.setup_logger(__name__)
 
 config = responses.get_config()
 
 isPrivate = False
+
+openai.api_key = config['openAI_key']
+guildler = []
 
 class aclient(discord.Client):
     def __init__(self) -> None:
@@ -113,33 +117,34 @@ def del_dir(target: Union[Path, str], only_if_empty: bool = False):
             p.unlink()
     target.rmdir()
 
-async def create_collage(ctx: discord.Interaction, query: str, source_image: Image, images: list) -> str:
-        width = source_image.width
-        height = source_image.height
-        font_size = 30
-        spacing = 16
-        text_height = font_size + spacing
-        
-        im = Image.open(images[0].path)
-        im.thumbnail((width, height))
-        with Image.new('RGB', (width, height + text_height), (255, 255, 255)) as new_im:
-            new_im.paste(im, (0, text_height))
-            img_draw = ImageDraw.Draw(new_im)
-            fnt = ImageFont.load_default()
-            img_draw.text((1, 0), query, font=fnt, fill=(0, 0, 0))
-            new_im.save(f"./generated/{ctx.user.id}/art.png")
-            new_im.close()
-            im.close()
-        return f"./generated/{ctx.user.id}/art.png"
 
-async def create_multcollage(ctx: discord.Interaction, query: str, source_image: Image, images: list) -> str:
+async def create_collage(ctx: discord.Interaction, prompt: str, source_image: Image, images: list, number: int) -> str:
         width = source_image.width
         height = source_image.height
         font_size = 30
         spacing = 16
         text_height = font_size + spacing
-        new_im = Image.new('RGBA', (width * 3 + spacing * 2, height * 3 + spacing * 2 + text_height),
-                            (0, 0, 0, 0))
+        # old new_im
+        # new_im = Image.new('RGBA', (width * 3 + spacing * 2, height * 3 + spacing * 2 + text_height),(0, 0, 0, 0))
+        new_im = None
+        if number == 1:
+            new_im = Image.new('RGBA', (width, height ),(0, 0, 0, 0))
+        elif number == 2:
+            new_im = Image.new('RGBA', (width * 2 , height ),(0, 0, 0, 0))
+        elif number == 3:
+            new_im = Image.new('RGBA', (width * 3 , height ),(0, 0, 0, 0))
+        elif number == 4:
+            new_im = Image.new('RGBA', (width * 2 , height * 2 ),(0, 0, 0, 0))
+        elif number == 5:
+            new_im = Image.new('RGBA', (width * 3 , height * 2 ),(0, 0, 0, 0))
+        elif number == 6:
+            new_im = Image.new('RGBA', (width * 3 , height * 2 ),(0, 0, 0, 0))
+        elif number == 7:
+            new_im = Image.new('RGBA', (width * 3 , height * 3 ),(0, 0, 0, 0))
+        elif number == 8:
+            new_im = Image.new('RGBA', (width * 3 , height * 3 ),(0, 0, 0, 0))
+        elif number == 9:
+            new_im = Image.new('RGBA', (width * 3 , height * 3 ),(0, 0, 0, 0))
 
         index = 0
         for i in range(0, 3):
@@ -150,20 +155,11 @@ async def create_multcollage(ctx: discord.Interaction, query: str, source_image:
                              text_height + j * (height + spacing)))
                 index += 1
 
-        img_draw = ImageDraw.Draw(new_im)
-        fnt = ImageFont.load_default()
-        img_draw.text((1, 0), query, font=fnt, fill=(0, 0, 0))
-        img_draw.text((0, 1), query, font=fnt, fill=(0, 0, 0))
-        img_draw.text((1, 2), query, font=fnt, fill=(0, 0, 0))
-        img_draw.text((2, 1), query, font=fnt, fill=(0, 0, 0))
-        img_draw.text((0, 0), query, font=fnt, fill=(0, 0, 0))
-        img_draw.text((0, 2), query, font=fnt, fill=(0, 0, 0))
-        img_draw.text((2, 0), query, font=fnt, fill=(0, 0, 0))
-        img_draw.text((2, 2), query, font=fnt, fill=(0, 0, 0))
-        img_draw.text((1, 1), query, font=fnt, fill=(255, 255, 255))
+        #img_draw = ImageDraw.Draw(new_im)
         new_im.save(f"./generated/{ctx.user.id}/art.png")
         return f"./generated/{ctx.user.id}/art.png"
 
+URL = 'https://github.com/saveffer1'
 def run_discord_bot():
     client = aclient()
 
@@ -221,39 +217,49 @@ def run_discord_bot():
         logger.info("\x1b[31mSomeone use invite cmd!\x1b[0m")
     
     @client.tree.command(name="draw", description="สร้างรูปจากสิ่งที่พิมพ์")
-    async def draw(ctx: discord.Interaction, *, query: str) -> None:
-        await ctx.response.defer(ephemeral=False)
-        # Check if query is empty
-        if not query:
+    @app_commands.describe(number="จำนวนของรูป สูงสุด 9")
+    async def draw(ctx: discord.Interaction, *, prompt: str, number: app_commands.Range[int, 1, 9] = 1) -> None:
+        guild = ctx.guild_id
+        if guild in guildler:
+            ep = False
+        else:
+            ep = True
+        await ctx.response.defer(ephemeral=ep)
+        
+        # Check if prompt is empty
+        if not prompt:
             await ctx.followup.send("sfbot: เกิดข้อผิดพลาด\nโปรดใส่สิ่งที่ต้องการให้วาดลงไปด้วย.")
             return
 
-        # Check if query is too long
-        if len(query) > 100:
+        # Check if prompt is too long
+        if len(prompt) > 100:
             await ctx.followup.send("sfbot: เกิดข้อผิดพลาด\nสิ่งที่ขอมันยาวเกินไป! (สูงสุด: 100 ตัวอักษร)")
             return
 
-        print(f"[-] {ctx.user.name} asked to draw {query}")
-
-        message = await ctx.followup.send(f"กำลังทำคำขอให้ {ctx.user.name} (นี่อาจจะใช้เวลามากกว่า 2 นาที)"" ```" + query + "```")
-
+        print(f"[-] {ctx.user.name} asked to draw {prompt}")
+        
+        message = await ctx.followup.send(f"กำลังทำคำขอให้ {ctx.user.name} (นี่อาจจะใช้เวลามากกว่า 2 นาที)"" ```" + prompt + "```")
+        
         try:
-            dall_e = await Dalle.DallE(prompt=f"{query}", author=f"{ctx.user.id}")
+            dall_e = await Dalle.DallE(prompt=f"{prompt}", author=f"{ctx.user.id}")
             generated = await dall_e.generate()
-
+            
+        
             if len(generated) > 0:
                 first_image = Image.open(generated[0].path)
-                generated_collage = await create_collage(ctx, query, first_image, generated)
-
+                generated_collage = await create_collage(ctx, prompt, first_image, generated, number)
                 # Prepare the attachment
-                file = discord.File(generated_collage, filename="art.png")
-                await ctx.followup.send(file=file)
+                f = discord.File(generated_collage, filename="art.png")
+                b = discord.Embed(title='follow me on github', description=prompt, url=URL)
+                await ctx.followup.send(embed=b, file=f, ephemeral=ep)
+                
+                #await ctx.followup.send(file=f, embed=b)
 
                 # Delete the message
                 await message.delete()
 
         except Dalle.DallENoImagesReturned:
-            await ctx.followup.send("sfbot ไม่รู้จัก {query}.")
+            await ctx.followup.send(f"sfbot ไม่รู้จัก {prompt}.")
         except Dalle.DallENotJson:
             await ctx.followup.send("API Serialization Error, โปรดลองอีกครั้ง.")
         except Dalle.DallEParsingFailed:
@@ -264,61 +270,73 @@ def run_discord_bot():
             if e == UnicodeEncodeError:
                 await ctx.followup.send("ระบบวาดตอนนี้ไม่เข้าใจภาษาอื่น, ขอร้องอย่าพยายามไอ้พวกเหี้ย.")
             else:
-                await ctx.followup.send("เซิร์ฟล่มไปแล้ว, โปรดลองอีกครั้ง.")
-                await ctx.followup.send(repr(e))
+                await ctx.followup.send(f"เซิร์ฟล่มไปแล้ว, โปรดลองอีกครั้ง. {repr(e)}")
         finally:
-            # Delete the author folder in ./generated with author id, if exists
             del_dir(f"./generated/{ctx.user.id}")
+
+    @client.tree.command(name="newdraw", description="วาดภาพใหม่ หน้าสวยแล้วจ้า")
+    @app_commands.describe(number="จำนวนของรูป สูงสุด 4")
+    @app_commands.describe(prompt="คำที่ต้องการให้วาด")
+    @app_commands.describe(sizes="ขนาดรูป")
+    @app_commands.choices(sizes=[
+    app_commands.Choice(name='sizes = 256x256', value='256x256'),
+    app_commands.Choice(name='sizes = 512x512', value='512x512'),
+    app_commands.Choice(name='sizes = 1024x1024', value='1024x1024')
+    ])
+    async def newdraw(interaction: discord.Interaction, prompt: str, number: app_commands.Range[int, 1, 4] = 1, sizes: app_commands.Choice[str] = "1024x1024"):
+        if sizes != "1024x1024":
+            sizes = sizes.value
+        guild = interaction.guild_id
+        if guild in guildler:
+            ep = False
+        else:
+            ep = True
+        print(f"[-] {interaction.user.name} asked to newdraw {prompt}")
+        await interaction.response.defer(ephemeral=ep)
+        try:
+            response = openai.Image.create(
+                prompt=prompt,
+                n=number,
+                size=sizes
+            )
+            b = []
+            for index, i in enumerate([x["url"] for x in response['data']]):
+                globals()['embed%s' % index] = discord.Embed(
+                    title='follow me on github', description=prompt, url=URL)
+                globals()['embed%s' % index].set_image(
+                    url=response['data'][index]["url"])
+                b.append(globals()['embed%s' % index])
     
-    @client.tree.command(name="multidraw", description="วาดหลายรูปพร้อมกัน")
-    async def draw(ctx: discord.Interaction, *, query: str) -> None:
-        await ctx.response.defer(ephemeral=False)
-        # Check if query is empty
-        if not query:
-            await ctx.followup.send("sfbot: เกิดข้อผิดพลาด\nโปรดใส่สิ่งที่ต้องการให้วาดลงไปด้วย.")
-            return
-
-        # Check if query is too long
-        if len(query) > 100:
-            await ctx.followup.send("sfbot: เกิดข้อผิดพลาด\nสิ่งที่ขอมันยาวเกินไป! (สูงสุด: 100 ตัวอักษร)")
-            return
-
-        print(f"[-] {ctx.user.name} asked to draw {query}")
-
-        message = await ctx.followup.send(f"กำลังทำคำขอให้ {ctx.user.name} (นี่อาจจะใช้เวลามากกว่า 2 นาที)"" ```" + query + "```")
-
-        try:
-            dall_e = await Dalle.DallE(prompt=f"{query}", author=f"{ctx.user.id}")
-            generated = await dall_e.generate()
-
-            if len(generated) > 0:
-                first_image = Image.open(generated[0].path)
-                generated_collage = await create_multcollage(ctx, query, first_image, generated)
-
-                # Prepare the attachment
-                file = discord.File(generated_collage, filename="art.png")
-                await ctx.followup.send(file=file)
-
-                # Delete the message
-                await message.delete()
-
-        except Dalle.DallENoImagesReturned:
-            await ctx.followup.send("sfbot ไม่รู้จัก {query}.")
-        except Dalle.DallENotJson:
-            await ctx.followup.send("API Serialization Error, โปรดลองอีกครั้ง.")
-        except Dalle.DallEParsingFailed:
-            await ctx.followup.send("Parsing Error, โปรดลองอีกครั้ง.")
-        except Dalle.DallESiteUnavailable:
-            await ctx.followup.send("API Error, โปรดลองอีกครั้ง.")
+            await interaction.followup.send(embeds=b, ephemeral=ep)
+        except openai.error.InvalidRequestError as e:
+            await interaction.followup.send("หื้มมม เนื้อหาอนาจารนะเนี่ย ลองใหม่อีกทีนะ ai ตัวนี้ไม่อณุญาติบางคำค้นหา")
         except Exception as e:
-            if e == UnicodeEncodeError:
-                await ctx.followup.send("ระบบวาดตอนนี้ไม่เข้าใจภาษาอื่น, ขอร้องอย่าพยายามไอ้พวกเหี้ย.")
-            else:
-                await ctx.followup.send("เซิร์ฟล่มไปแล้ว, โปรดลองอีกครั้ง.")
-                await ctx.followup.send(repr(e))
-        finally:
-            # Delete the author folder in ./generated with author id, if exists
-            del_dir(f"./generated/{ctx.user.id}")
+            await interaction.followup.send(f"เซิร์ฟล่มไปแล้ว, โปรดลองอีกครั้ง. {repr(e)}")
+    
+    def is_owner(interaction: discord.Interaction):
+        if interaction.user.id == interaction.guild.owner_id:
+            return True
+        return False
 
+    @client.tree.command(name="set", description="สำหรับเจ้าของห้อง ตั้งค่าข้อความของบอท(เฉพาะรูป)")
+    @app_commands.check(is_owner)
+    async def nolink(interaction, ephemeral: bool):
+        await interaction.response.defer(ephemeral=True)
+        guild = interaction.guild.id
+        if ephemeral == True:
+            if guild in guildler:
+                await interaction.followup.send("ทำให้ผู้ใช้เห็นแค่คนเดียว = True")
+                guildler.remove(guild)
+            elif guild not in guildler:
+                await interaction.followup.send("ไม่มีอะไรเกิดขึ้น")
+        else:
+            if guild in guildler:
+                await interaction.followup.send("ไม่มีอะไรเกิดขึ้น")
+            elif guild not in guildler:
+                await interaction.followup.send("ทำให้ผู้ใช้เห็นแค่คนเดียว = False")
+                guildler.append(guild)
+    
+    
+    
     TOKEN = config['discord_bot_token']
     client.run(TOKEN)
