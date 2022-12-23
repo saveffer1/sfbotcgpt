@@ -19,6 +19,7 @@ sfbotcgpt requires server to run this bot
 Install the dependencies and start the script.
 
 ```sh
+tested python version == 3.11
 1.ติดตั้ง python library
   pip install -r requirements.txt
 2.ขอ API จาก open ai(โทเค็นจะย้อนมาดูไม่ได้อีก เอาเก็บไว้ที่ไหนสักที่ให้ดีๆ)
