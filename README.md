@@ -1,5 +1,6 @@
 # saveffer
 ## The renewed discord bot
+invite link: https://discord.com/api/oauth2/authorize?client_id=1054600054498926613&permissions=59392&scope=bot
 
 [![Build Status](https://travis-ci.org/joemccann/dillinger.svg?branch=master)](https://travis-ci.org/joemccann/dillinger)
 
