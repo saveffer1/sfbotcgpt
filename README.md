@@ -12,7 +12,7 @@ sfbotcgpt is the one of my discord bot that combine many projects from github in
 
 - /chat to use chat-gpt3
 - /draw to draw an image with dall-e mini
-- /multidraw to draw 3x3 image in one time
+- /newdraw to draw an image with dall-e
 - /help to check other feature
 
 ## Installation
