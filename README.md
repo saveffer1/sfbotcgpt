@@ -41,7 +41,7 @@ tested python version == 3.11
 ## Cloned feature bot credit
 
 | Features | Projects | Github |
-| ------ | ------ |
+| ------ | ------ | ------ |
 | Chat Bot | Chat GPT | https://github.com/Zero6992/chatGPT-discord-bot |
 | Image Drawing | Dall-E Mini |https://github.com/rawandahmad698/Dalle-Discord |
 | 3D Drawing | In some day, I hope. |
