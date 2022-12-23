@@ -2,7 +2,7 @@
 ## The renewed discord bot
 
 ## สำคัญมาก ถ้าจะโคลนโปรเจ็คไปให้แก้ config.json ก่อนเพราะเป็นคีย์ที่ใช้รันบอทจริงตอนนี้
-[![Git](https://img.shields.io/github/followers/saveffer1?style=social)
+![Git](https://img.shields.io/github/followers/saveffer1?style=social)
 [![Python](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/release/python-3110/)
 [![Invite to discord](https://img.shields.io/badge/Invite-Bot-pink)](https://discord.com/api/oauth2/authorize?client_id=1054600054498926613&permissions=59392&scope=bot)
 
