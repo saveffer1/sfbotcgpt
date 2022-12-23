@@ -24,9 +24,6 @@ enjoy
 ```
 ## Cloned feature bot credit
 
-Dillinger is currently extended with the following plugins.
-Instructions on how to use them in your own application are linked below.
-
 | Feature | Github |
 | ------ | ------ |
 | Chat GPT | https://github.com/Zero6992/chatGPT-discord-bot |
