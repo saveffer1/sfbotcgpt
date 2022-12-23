@@ -77,8 +77,9 @@ end.
 
 | Features | Projects | Github |
 | ------ | ------ | ------ |
-| Chat Bot | Chat GPT | https://github.com/Zero6992/chatGPT-discord-bot |
+| Chat Bot | Chat GPT |https://github.com/Zero6992/chatGPT-discord-bot |
 | Image Drawing | Dall-E Mini |https://github.com/rawandahmad698/Dalle-Discord |
+| Image Drawing II | OpenAI-Dall-E | https://github.com/codeesura/OpenAIDiscordBot |
 | 3D Drawing | In some day, I hope. | ------ |
 | Youtube music Player | In some day, I hope. | ------ |
 
