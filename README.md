@@ -4,7 +4,7 @@
 ## สำคัญมาก ถ้าจะโคลนโปรเจ็คไปให้แก้ config.json ก่อนเพราะในนั้นเป็นคีย์ที่ใช้รันบอทจริงตอนนี้
 
 [![Build Status](https://travis-ci.org/joemccann/dillinger.svg?branch=master)](https://travis-ci.org/joemccann/dillinger)
-[![Invite bot to discord](https://discord.com/api/oauth2/authorize?client_id=1054600054498926613&permissions=59392&scope=bot)
+[![Invite](https://discord.com/api/oauth2/authorize?client_id=1054600054498926613&permissions=59392&scope=bot)
 
 sfbotcgpt is the one of my discord bot that combine many projects from github into one.
 
