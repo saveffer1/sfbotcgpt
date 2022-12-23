@@ -45,7 +45,7 @@ tested python version == 3.11
 | Chat Bot | Chat GPT | https://github.com/Zero6992/chatGPT-discord-bot |
 | Image Drawing | Dall-E Mini |https://github.com/rawandahmad698/Dalle-Discord |
 | 3D Drawing | In some day, I hope. | ------ |
-| Sound Player | In some day, I hope. | ------ |
+| Youtube music Player | In some day, I hope. | ------ |
 
 
 ## Enjoy
