@@ -3,9 +3,8 @@
 
 ## สำคัญมาก ถ้าจะโคลนโปรเจ็คไปให้แก้ config.json ก่อนเพราะในนั้นเป็นคีย์ที่ใช้รันบอทจริงตอนนี้
 
-![lastcommit](https://img.shields.io/github/last-commit/saveffer1/sfbotcgpt?color=green&logoColor=black)
-![Python](https://img.shields.io/badge/python-3.11-blue.svg)
-[![Invite to discord](https://img.shields.io/badge/Invite-Bot-pink)](https://discord.com/api/oauth2/authorize?client_id=1054600054498926613&permissions=59392&scope=bot)]
+[![Python](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/release/python-3110/)
+[![Invite to discord](https://img.shields.io/badge/Invite-Bot-pink)](https://discord.com/api/oauth2/authorize?client_id=1054600054498926613&permissions=59392&scope=bot)
 
 sfbotcgpt is the one of my discord bot that combine many projects from github into one.
 
