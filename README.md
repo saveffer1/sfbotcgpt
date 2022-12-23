@@ -44,5 +44,6 @@ tested python version == 3.11
 | ------ | ------ |
 | Chat GPT | https://github.com/Zero6992/chatGPT-discord-bot |
 | Dall-E Mini | https://github.com/rawandahmad698/Dalle-Discord |
+| Sound Player | In some day, I hope. |
 
 ## Enjoy
