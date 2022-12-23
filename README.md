@@ -62,6 +62,17 @@ tested python version == 3.11
 end.
 ```
 
+## Discord bot commands
+
+| Commands | Description |
+| ------ | ------ |
+| /chat {prompt} | chat with chat gpt |
+| /draw {promopt} {number} | draw with dall-e mini |
+| /newdraw {prompt} {number} {size} | draw with dall-e |
+| /private | send the answer only you |
+| /public | send the answer to every one |
+| /help | show the help |
+
 ## Cloned feature bot credit
 
 | Features | Projects | Github |
