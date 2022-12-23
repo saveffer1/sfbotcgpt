@@ -20,7 +20,7 @@ sfbotcgpt is the one of my discord bot that combine many projects from github in
 sfbotcgpt requires server to run this bot
 
 Install all dependencies and start the script.
-
+Th version
 ```sh
 tested python version == 3.11
 1.ติดตั้ง python library
@@ -40,6 +40,27 @@ tested python version == 3.11
 12.run python code ได้เลยชื่อไฟล์ main.py
 จบปิ๊ง
 ```
+
+En version
+```sh
+tested python version == 3.11
+1. Install python library
+   pip install -r requirements.txt
+2.Request API from open ai(The token will not be able to view again Keep it somewhere good)
+   https://beta.openai.com/account/api-keys
+3. Create a bot
+   https://discordapp.com/developers/applications/
+4. Set a name and put a picture for the bot (do not do it will not get a token)
+5. Write a description for the bot (don't do it, you won't get a token)
+6. go to bot -> add bot
+7.Press reset token
+8. Press copy(The token will not be able to look back again. Keep it somewhere good)
+9. Take items from item 2 and item 8 to put in the downloaded file named config.json(it is written which one to put)
+10. In web bot discord, go to oauth2 -> url generator, tick bot, tick admin and copy the invitation code below to open. This will invite the bot to the disk.
+11. In the web bot discord, go back to the bot menu at Privileged Gateway Intents, there are 3 open. Open them all.
+12.run python code, the filename is main.py
+```
+
 ## Cloned feature bot credit
 
 | Features | Projects | Github |
